@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routers.auth import router as auth_router
 from app.api.routers.facilities import router as facilities_router
 from app.api.routers.slots import router as slots_router
+from app.api.routers.reservations import router as reservations_router
+from app.db import base as _models_loaded
 
 app = FastAPI(title="Reserva Sport", version="0.1.0")
 
@@ -14,6 +16,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(facilities_router)
 app.include_router(slots_router)
+app.include_router(reservations_router)
 
 @app.get("/health")
 def health():

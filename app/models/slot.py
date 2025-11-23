@@ -1,6 +1,8 @@
 ﻿from sqlalchemy import Integer, Date, Time, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.base_class import Base
+from sqlalchemy.orm import relationship
+
 
 class Slot(Base):
     __tablename__ = "franjas_horarias"
@@ -12,3 +14,5 @@ class Slot(Base):
     hora_fin: Mapped[object] = mapped_column(Time, nullable=False)
     capacidad: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     plazas_disponibles: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    reservas = relationship("Reservation", back_populates="franja", cascade="all, delete-orphan")
+    instalacion = relationship("Facility", back_populates="franjas")
