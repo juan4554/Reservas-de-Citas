@@ -5,6 +5,7 @@ from app.api.routers.facilities import router as facilities_router
 from app.api.routers.slots import router as slots_router
 from app.api.routers.admin_users import router as admin_users_router
 from app.api.routers.admin_reservations import router as admin_reservations_router
+from app.api.routers.reservations import router as reservations_router
 
 
 
