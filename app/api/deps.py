@@ -5,7 +5,7 @@ from app.db.session import SessionLocal
 from app.core.security import decode_token
 from app.models.user import User, UserRole
 
-# 🔐 Esquema de seguridad tipo HTTP Bearer (Swagger mostrará un campo para pegar token)
+
 security_scheme = HTTPBearer(auto_error=True)
 
 def get_db():
@@ -29,7 +29,7 @@ def get_current_user(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario no existe")
     return user
 
-def require_admin(user: User = Depends(get_current_user)) -> User:
-    if user.rol != UserRole.admin:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Requiere rol admin")
-    return user
+def require_admin(current: User = Depends(get_current_user)) -> User:
+    if getattr(current, "rol", None) != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo para administradores")
+    return current
