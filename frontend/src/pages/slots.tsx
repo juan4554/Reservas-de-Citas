@@ -1,79 +1,88 @@
 // src/pages/slots.tsx
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { apiFetch } from "../api/client";
+import { api } from "../lib/api";
 
 type Facility = { id: number; nombre: string };
 type Slot = {
   id: number;
   instalacion_id: number;
-  fecha: string;        // "YYYY-MM-DD"
-  hora_inicio: string;  // "HH:MM"
-  hora_fin: string;     // "HH:MM"
+  fecha: string;
+  hora_inicio: string;
+  hora_fin: string;
+  plazas_totales: number;
   plazas_disponibles: number;
 };
 
 export default function Slots() {
-  const [params, setParams] = useSearchParams();
-  const facilityId = Number(params.get("facilityId") || 1);
-
-  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
-  const [date, setDate] = useState(params.get("date") || today);
-
   const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [facilityId, setFacilityId] = useState<number | null>(null);
+  const [date, setDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [slots, setSlots] = useState<Slot[]>([]);
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState("");
+  const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    apiFetch<Facility[]>("/facilities").then(setFacilities).catch(() => {});
+    (async () => {
+      try {
+        const r = await api("/facilities");
+        const data: Facility[] = await r.json();
+        setFacilities(data);
+        if (data.length && facilityId === null) setFacilityId(data[0].id);
+      } catch (e: any) {
+        setErr(e?.message ?? "Error");
+      }
+    })();
   }, []);
 
   useEffect(() => {
-    setParams({ facilityId: String(facilityId), date });
-    setLoading(true);
-    setErr("");
-    apiFetch<Slot[]>(
-      `/slots/by-facility/${facilityId}?fecha=${date}&available_only=false`
-    )
-      .then(setSlots)
-      .catch((e) => setErr(e.message || "Error cargando franjas"))
-      .finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!facilityId || !date) return;
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const r = await api(`/slots/by-facility/${facilityId}?fecha=${date}&available_only=false`);
+        const data: Slot[] = await r.json();
+        if (!alive) return;
+        setSlots(data ?? []);
+      } catch (e: any) {
+        setErr(e?.message ?? "Error");
+      } finally {
+        setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
   }, [facilityId, date]);
 
   async function reservar(slot: Slot) {
     try {
-      await apiFetch("/reservations", {
-        method: "POST",
-        body: JSON.stringify({ instalacion_id: slot.instalacion_id, franja_id: slot.id }),
-      });
-      // refresca
-      const fresh = await apiFetch<Slot[]>(
-        `/slots/by-facility/${facilityId}?fecha=${date}&available_only=false`
-      );
-      setSlots(fresh);
-      alert("Reserva creada ✅");
+      const body = JSON.stringify({ instalacion_id: slot.instalacion_id, franja_id: slot.id });
+      await api("/reservations", { method: "POST", body });
+      alert("Reserva creada");
+      // refresca listado
+      const r = await api(`/slots/by-facility/${facilityId}?fecha=${date}&available_only=false`);
+      setSlots(await r.json());
     } catch (e: any) {
-      alert(e.message || "No se pudo reservar");
+      alert(e?.message ?? "Error al reservar");
     }
   }
 
+  const facilityOptions = useMemo(
+    () => facilities.map(f => <option key={f.id} value={f.id}>{f.nombre}</option>),
+    [facilities]
+  );
+
   return (
-    <div className="space-y-4">
-      <h1 className="text-lg font-semibold">Reservar</h1>
+    <div className="p-4 space-y-4">
+      <h1 className="text-xl font-semibold">Reservar</h1>
 
       <div className="flex gap-3 items-center">
         <select
           className="border rounded px-2 py-1"
-          value={facilityId}
-          onChange={(e) => setParams({ facilityId: e.target.value, date })}
+          value={facilityId ?? ""}
+          onChange={(e) => setFacilityId(Number(e.target.value))}
         >
-          {facilities.map((f) => (
-            <option key={f.id} value={f.id}>{f.nombre}</option>
-          ))}
+          {facilityOptions}
         </select>
-
         <input
           type="date"
           className="border rounded px-2 py-1"
@@ -82,31 +91,31 @@ export default function Slots() {
         />
       </div>
 
-      {loading && <div>Cargando franjas…</div>}
-      {err && <div className="text-red-600">{err}</div>}
-
-      <ul className="divide-y rounded border bg-white">
-        {slots.map((s) => (
-          <li key={s.id} className="p-3 flex items-center justify-between">
-            <div>
-              <div className="font-medium">
-                {s.fecha} · {s.hora_inicio}–{s.hora_fin}
+      {err && <p className="text-red-600">{err}</p>}
+      {loading ? (
+        <p>Cargando franjas…</p>
+      ) : (
+        <ul className="grid gap-3">
+          {slots.map(s => (
+            <li key={s.id} className="p-3 rounded border bg-white flex items-center justify-between">
+              <div>
+                <div className="font-medium">{s.fecha} · {s.hora_inicio}–{s.hora_fin}</div>
+                <div className="text-sm text-gray-600">
+                  Plazas: {s.plazas_disponibles}/{s.plazas_totales}
+                </div>
               </div>
-              <div className="text-sm text-gray-600">
-                Plazas: {s.plazas_disponibles}
-              </div>
-            </div>
-            <button
-              disabled={s.plazas_disponibles <= 0}
-              onClick={() => reservar(s)}
-              className="px-3 py-1 rounded bg-indigo-600 text-white disabled:opacity-50"
-            >
-              Reservar
-            </button>
-          </li>
-        ))}
-        {slots.length === 0 && !loading && <li className="p-3 text-sm">Sin franjas.</li>}
-      </ul>
+              <button
+                onClick={() => reservar(s)}
+                disabled={s.plazas_disponibles <= 0}
+                className="px-3 py-1 rounded text-sm bg-indigo-600 text-white disabled:opacity-50"
+              >
+                Reservar
+              </button>
+            </li>
+          ))}
+          {slots.length === 0 && <p>No hay franjas para ese día.</p>}
+        </ul>
+      )}
     </div>
   );
 }
