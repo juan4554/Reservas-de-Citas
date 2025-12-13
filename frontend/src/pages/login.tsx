@@ -51,32 +51,57 @@ export default function Login() {
   }
 
   return (
-    <div className="max-w-xl mx-auto">
-      <h1 className="text-lg font-semibold mb-4">Entrar</h1>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          type="email"
-          className="border rounded px-3 py-2 w-full"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="email"
-        />
-        <input
-          type="password"
-          className="border rounded px-3 py-2 w-full"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="password"
-        />
-        {err && <div className="text-sm text-red-600">{err}</div>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-4 py-2 rounded bg-indigo-600 text-white disabled:opacity-60"
-        >
-          {loading ? "Accediendo…" : "Acceder"}
-        </button>
-      </form>
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 md:p-10">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">💪 FitReserve</h1>
+          <p className="text-gray-600">Inicia sesión para reservar tus clases</p>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-fitness-primary focus:border-fitness-primary transition-colors"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="tu@email.com"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-fitness-primary focus:border-fitness-primary transition-colors"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+          </div>
+          
+          {err && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+              {err}
+            </div>
+          )}
+          
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 px-4 rounded-lg bg-fitness-primary hover:bg-fitness-primary-dark text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {loading ? "Accediendo…" : "Iniciar Sesión"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

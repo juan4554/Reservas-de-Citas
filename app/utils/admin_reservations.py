@@ -6,6 +6,8 @@ from fastapi import HTTPException, status
 
 from app.models.reservation import Reservation
 from app.models.slot import Slot
+from app.models.user import User
+from app.models.facility import Facility
 
 def list_reservations(
     db: Session,
@@ -19,7 +21,11 @@ def list_reservations(
     limit = max(1, min(100, limit))
     offset = max(0, offset)
 
-    q = db.query(Reservation).options(joinedload(Reservation.franja))
+    q = db.query(Reservation).options(
+        joinedload(Reservation.franja),
+        joinedload(Reservation.usuario),
+        joinedload(Reservation.instalacion)
+    )
 
     if usuario_id:
         q = q.filter(Reservation.usuario_id == usuario_id)
