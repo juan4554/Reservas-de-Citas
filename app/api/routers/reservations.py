@@ -7,6 +7,7 @@ from app.utils.reservations import (
 )
 from app.models.user import User
 from app.models.slot import Slot
+from app.models.facility import Facility
 
 router = APIRouter(prefix="/reservations", tags=["Reservations"])
 
@@ -24,12 +25,13 @@ def book(data: ReservationCreate, db: Session = Depends(get_db), current: User =
         "hora_fin": slot.hora_fin,
     }
 
-@router.get("/my", response_model=list[ReservationOut])
+@router.get("/my")
 def my_reservations(db: Session = Depends(get_db), current: User = Depends(get_current_user)):
     reservas = list_reservations_for_user(db, current.id)
     out = []
     for r in reservas:
         slot = db.get(Slot, r.franja_id)
+        instalacion = db.get(Facility, r.instalacion_id)
         out.append({
             "id": r.id,
             "usuario_id": r.usuario_id,
@@ -38,6 +40,10 @@ def my_reservations(db: Session = Depends(get_db), current: User = Depends(get_c
             "fecha": slot.fecha,
             "hora_inicio": slot.hora_inicio,
             "hora_fin": slot.hora_fin,
+            "instalacion": {
+                "id": instalacion.id,
+                "nombre": instalacion.nombre,
+            } if instalacion else None,
         })
     return out
 

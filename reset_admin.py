@@ -15,7 +15,7 @@ new_password = sys.argv[1]
 db = SessionLocal()
 
 try:
-    admin = db.query(User).filter(User.email == "admin@test.local.es").first()
+    admin = db.query(User).filter(User.email == "ana@test.local.com").first()
     
     if not admin:
         print("[ERROR] No se encontro el usuario admin")
