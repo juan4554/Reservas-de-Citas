@@ -1,0 +1,53 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: reservas-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./reserva.db
+      - JWT_SECRET=${JWT_SECRET:-change-this-secret-key-in-production}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+    volumes:
+      - ./reserva.db:/app/reserva.db
+      - ./app:/app/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: reservas-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    environment:
+      - VITE_API_URL=http://localhost:8000
+
+  # Opcional: Base de datos PostgreSQL para producción
+  # db:
+  #   image: postgres:15-alpine
+  #   container_name: reservas-db
+  #   environment:
+  #     - POSTGRES_USER=${POSTGRES_USER:-reservas}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-reservas123}
+  #     - POSTGRES_DB=${POSTGRES_DB:-reservas}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   restart: unless-stopped
+
+# volumes:
+#   postgres_data:
+
