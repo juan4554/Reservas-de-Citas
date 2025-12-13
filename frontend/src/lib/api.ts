@@ -20,4 +20,31 @@ export async function api(path: string, init: RequestInit = {}) {
   return res;
 }
 
+// Wrapper compatible con axios para auth.ts
+const apiClient = {
+  async get<T = any>(path: string, config?: any) {
+    const res = await api(path, {
+      method: "GET",
+      headers: config?.headers,
+    });
+    const data = res.status === 204 ? undefined : await res.json();
+    return { data: data as T };
+  },
+  async post<T = any>(path: string, body?: any, config?: any) {
+    const headers = new Headers(config?.headers || {});
+    if (!headers.has("Content-Type") && body && !(body instanceof FormData)) {
+      headers.set("Content-Type", "application/json");
+    }
+    const res = await api(path, {
+      method: "POST",
+      body: body instanceof FormData ? body : JSON.stringify(body),
+      headers,
+    });
+    const data = res.status === 204 ? undefined : await res.json();
+    return { data: data as T };
+  },
+};
+
+// Exportar el cliente como default para auth.ts
+export default apiClient;
 export { API };

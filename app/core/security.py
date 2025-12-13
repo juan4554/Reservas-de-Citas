@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 from jose import jwt, JWTError
-from passlib.context import CryptContext
 from app.core.config import settings
 
+# Configuración de hash de contraseñas
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+
+# Algoritmo JWT
 ALGORITHM = "HS256"
 
 def hash_password(password: str) -> str:
