@@ -25,4 +25,5 @@ faker==33.1.0
 
 # Utilidades
 python-dotenv==1.0.1
+requests==2.32.3
 

@@ -6,6 +6,8 @@ import Login from "./pages/login";
 import Facilities from "./pages/facilities";
 import Slots from "./pages/slots";
 import MyReservations from "./pages/my-reservations";
+import AdminReservations from "./pages/admin-reservations";
+import AdminRoute from "./components/AdminRoute";
 
 
 function PrivateRoute({ children }: { children: ReactNode }) {
@@ -44,7 +46,15 @@ export default function App() {
               >
                 Mis Reservas
               </Link>
-              {user ? (
+              {user?.rol === "admin" && (
+                <Link 
+                  to="/admin/reservations" 
+                  className="text-sm font-medium hover:text-fitness-primary transition-colors px-3 py-2 rounded-md"
+                >
+                  Admin Reservas
+                </Link>
+              )}
+          {user ? (
                 <div className="flex items-center gap-3 ml-4 pl-4 border-l border-gray-600">
                   <span className="text-sm font-medium">
                     {user.nombre}
@@ -52,21 +62,21 @@ export default function App() {
                       <span className="ml-2 px-2 py-0.5 text-xs bg-fitness-primary rounded-full">Admin</span>
                     )}
                   </span>
-                  <button
-                    onClick={() => { logout(); nav("/login"); }}
+              <button
+                onClick={() => { logout(); nav("/login"); }}
                     className="px-4 py-2 rounded-lg bg-fitness-primary hover:bg-fitness-primary-dark text-white text-sm font-medium transition-colors"
                   >
                     Salir
                   </button>
                 </div>
-              ) : (
+          ) : (
                 <Link 
                   className="px-4 py-2 rounded-lg bg-fitness-primary hover:bg-fitness-primary-dark text-white text-sm font-medium transition-colors" 
                   to="/login"
                 >
-                  Entrar
-                </Link>
-              )}
+              Entrar
+            </Link>
+          )}
             </div>
           </div>
         </div>
@@ -79,6 +89,7 @@ export default function App() {
           <Route path="/facilities" element={<PrivateRoute><Facilities /></PrivateRoute>} />
           <Route path="/slots" element={<PrivateRoute><Slots /></PrivateRoute>} />
           <Route path="/my" element={<PrivateRoute><MyReservations /></PrivateRoute>} />
+          <Route path="/admin/reservations" element={<PrivateRoute><AdminRoute><AdminReservations /></AdminRoute></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

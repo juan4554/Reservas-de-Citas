@@ -1,7 +1,7 @@
 // src/pages/slots.tsx
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../lib/api";
-import { formatDate, formatTime } from "../lib/dates";
+import { formatTime } from "../lib/dates";
 import { toast } from "../ui/useToast";
 import Spinner from "../ui/Spinner";
 
@@ -126,7 +126,6 @@ export default function Slots() {
     [facilities]
   );
 
-  const selectedFacility = facilities.find(f => f.id === facilityId);
   const slotsByDate = useMemo(() => groupSlotsByDate(slots), [slots]);
 
   return (
