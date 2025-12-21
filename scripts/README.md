@@ -78,6 +78,52 @@ chmod +x scripts/generate_weekly_slots.sh
 
 Script avanzado con configuración personalizable mediante archivo JSON.
 
+### Uso Básico
+
+```bash
+# Generar slots para la próxima semana (7 días desde hoy)
+python scripts/generate_weekly_slots_config.py
+
+# Generar slots para 14 días
+python scripts/generate_weekly_slots_config.py --days 14
+
+# Generar slots desde una fecha específica
+python scripts/generate_weekly_slots_config.py --start-date 2024-12-20
+
+# Generar slots para una instalación específica
+python scripts/generate_weekly_slots_config.py --facility-id 1
+
+# Usar credenciales diferentes
+python scripts/generate_weekly_slots_config.py --email admin@example.com --password mi_password
+
+# Usar archivo de configuración personalizado
+python scripts/generate_weekly_slots_config.py --config slots_config.example.json
+```
+
+### Scripts de Acceso Rápido (Windows)
+
+**Desde el directorio raíz del proyecto:**
+```batch
+scripts\generate_weekly_slots_config.bat
+scripts\generate_weekly_slots_config.bat 14
+scripts\generate_weekly_slots_config.bat 7 2025-01-01
+```
+
+### Solución de Problemas
+
+**Error: "No module named 'requests'"**
+```bash
+pip install requests python-dotenv
+```
+
+**Error: "Connection refused" o "Failed to connect"**
+- Verifica que el backend esté corriendo: `docker-compose up -d backend`
+- Verifica que la API esté accesible: `curl http://localhost:8000/health`
+
+**Error: "401 Unauthorized"**
+- Verifica las credenciales del admin (por defecto: `admin@test.local.es` / `admin123`)
+- Puedes cambiar las credenciales con `--email` y `--password`
+
 ### Uso con Configuración
 
 ```bash
