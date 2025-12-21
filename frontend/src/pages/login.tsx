@@ -54,7 +54,7 @@ export default function Login() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 md:p-10">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">💪 FitReserve</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">💪 Reserva Sport</h1>
           <p className="text-gray-600">Inicia sesión para reservar tus clases</p>
         </div>
         

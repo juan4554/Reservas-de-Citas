@@ -4,6 +4,77 @@ import Spinner from "../ui/Spinner";
 
 type Facility = { id: number; nombre: string; tipo?: string; aforo?: number };
 
+// Función para obtener la URL de la imagen según el nombre de la instalación
+// 
+// PÁGINAS RECOMENDADAS PARA OBTENER IMÁGENES GRATUITAS:
+// 1. Unsplash (https://unsplash.com) - Fotos de alta calidad, uso libre
+//    Busca: "crossfit", "kettlebell", "mma", "boxing", "weightlifting", "gym", etc.
+//    Ejemplo de URL: https://images.unsplash.com/photo-[ID]?w=400&h=300&fit=crop
+//
+// 2. Pexels (https://www.pexels.com) - Fotos y videos gratuitos
+//    Busca términos similares, descarga y sube a /public/images/
+//
+// 3. Pixabay (https://pixabay.com) - Imágenes, vectores e ilustraciones
+//    Buena opción para iconos o ilustraciones
+//
+// 4. Para imágenes locales:
+//    - Coloca las imágenes en: frontend/public/images/facilities/
+//    - Usa: "/images/facilities/crossfit.jpg"
+//
+function getFacilityImage(nombre: string): string {
+  const nameLower = nombre.toLowerCase();
+  
+  // Mapeo de nombres a URLs de imágenes
+  // Puedes cambiar estas URLs por las imágenes que quieras usar
+  
+  if (nameLower.includes("crossfit") || nameLower.includes("cross fit")) {
+    // Busca en Unsplash: "crossfit kettlebell" o "crossfit workout"
+    // Ejemplo: https://unsplash.com/s/photos/crossfit-kettlebell
+    return "https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=400&h=300&fit=crop";
+    // O imagen local: "/images/facilities/crossfit.jpg"
+  }
+  
+  if (nameLower.includes("mma") || nameLower.includes("artes marciales")) {
+    // Busca en Unsplash: "mma boxing" o "martial arts"
+    // Ejemplo: https://unsplash.com/s/photos/mma-boxing
+    return "https://images.unsplash.com/photo-1601422407692-ec4eeec1d9b3?w=400&h=300&fit=crop";
+    // O imagen local: "/images/facilities/mma.jpg"
+  }
+  
+  if (nameLower.includes("weightlifting") || nameLower.includes("pesas") || nameLower.includes("halterofilia")) {
+    // Busca en Unsplash: "weightlifting" o "barbell"
+    // Ejemplo: https://unsplash.com/s/photos/weightlifting
+    return "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=300&fit=crop";
+    // O imagen local: "/images/facilities/weightlifting.jpg"
+  }
+  
+  if (nameLower.includes("hyrox")) {
+    // Busca en Unsplash: "running" o "athlete running"
+    // Ejemplo: https://unsplash.com/s/photos/running-track
+    return "https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=400&h=300&fit=crop";
+    // O imagen local: "/images/facilities/hyrox.jpg"
+  }
+  
+  if (nameLower.includes("gymnastics") || nameLower.includes("gimnasia")) {
+    // Busca en Unsplash: "gymnastics" o "gymnast"
+    // Ejemplo: https://unsplash.com/s/photos/gymnastics
+    return "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400&h=300&fit=crop";
+    // O imagen local: "/images/facilities/gymnastics.jpg"
+  }
+  
+  if (nameLower.includes("pista") || nameLower.includes("central")) {
+    // Busca en Unsplash: "stadium" o "sports field"
+    // Ejemplo: https://unsplash.com/s/photos/stadium
+    return "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop";
+    // O imagen local: "/images/facilities/pista.jpg"
+  }
+  
+  // Imagen por defecto (gimnasio genérico)
+  // Busca en Unsplash: "gym" o "fitness center"
+  return "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop";
+  // O imagen local: "/images/facilities/default.jpg"
+}
+
 export default function Facilities() {
   const [items, setItems] = useState<Facility[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,8 +127,24 @@ export default function Facilities() {
             key={f.id} 
             className="group relative overflow-hidden rounded-xl border-2 border-gray-200 bg-white hover:border-fitness-primary hover:shadow-lg transition-all duration-200"
           >
-            <div className="h-32 bg-gradient-to-br from-fitness-primary to-fitness-primary-dark flex items-center justify-center">
-              <span className="text-4xl">💪</span>
+            <div className="h-32 bg-gradient-to-br from-fitness-primary to-fitness-primary-dark flex items-center justify-center overflow-hidden relative">
+              <img 
+                src={getFacilityImage(f.nombre)} 
+                alt={f.nombre}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                onError={(e) => {
+                  // Si la imagen falla, mostrar un emoji por defecto
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent && !parent.querySelector('span')) {
+                    const fallback = document.createElement('span');
+                    fallback.className = 'text-4xl';
+                    fallback.textContent = '💪';
+                    parent.appendChild(fallback);
+                  }
+                }}
+              />
             </div>
             <div className="p-4 md:p-5">
               <h3 className="font-bold text-lg text-gray-900 mb-2">{f.nombre}</h3>
