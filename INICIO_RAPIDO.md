@@ -60,5 +60,7 @@ docker-compose restart backend
 - **Frontend:** http://localhost:3000
 - **Health Check:** http://localhost:8000/health
 <img width="454" height="165" alt="image" src="https://github.com/user-attachments/assets/f275cc73-b468-4b37-920a-23c688895d47" />
+
+
 - **API Docs:** http://localhost:8000/docs
 
