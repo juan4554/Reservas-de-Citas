@@ -3,7 +3,8 @@ Plataforma para reserva de citas
 
 Encuentra las instalaciones que necesitas, segun tus preferencias a la hora de hacer deporte:
 
-<img width="1238" height="767" alt="image" src="https://github.com/user-attachments/assets/d15931f6-3f85-41ae-aa2c-71ef73e4f839" />
+<img width="1275" height="800" alt="image" src="https://github.com/user-attachments/assets/9372462b-b446-4e16-8c0a-2a90eee332d9" />
+
 
 
 Gestiona tus reservas de forma autonoma:
