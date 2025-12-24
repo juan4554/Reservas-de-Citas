@@ -1,14 +1,9 @@
-"""
-Script para generar slots semanales para todas las instalaciones
-Uso: python scripts/generate_weekly_slots.py [--days N] [--start-date YYYY-MM-DD]
-"""
 import sys
 import os
 import argparse
 from datetime import date, time, timedelta
 from typing import List, Tuple
 
-# Añadir el directorio raíz al path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import requests
@@ -18,7 +13,6 @@ load_dotenv()
 
 API_URL = os.getenv("API_URL", "http://localhost:8000")
 
-# Horarios típicos de clases (puedes modificar estos)
 DEFAULT_TIME_SLOTS = [
     (time(9, 0), time(10, 0)),
     (time(10, 0), time(11, 0)),
@@ -29,12 +23,10 @@ DEFAULT_TIME_SLOTS = [
     (time(20, 0), time(21, 0)),
 ]
 
-# Capacidad por defecto
 DEFAULT_CAPACITY = 20
 
 
 def login(email: str, password: str) -> str:
-    """Iniciar sesión y obtener token"""
     response = requests.post(
         f"{API_URL}/auth/login",
         data={
@@ -52,7 +44,6 @@ def login(email: str, password: str) -> str:
 
 
 def get_facilities(token: str) -> List[dict]:
-    """Obtener todas las instalaciones"""
     response = requests.get(
         f"{API_URL}/facilities",
         headers={"Authorization": f"Bearer {token}"}
@@ -72,7 +63,6 @@ def create_slot(
     hora_fin: time,
     capacidad: int = DEFAULT_CAPACITY
 ) -> dict | None:
-    """Crear un slot"""
     response = requests.post(
         f"{API_URL}/slots",
         json={
@@ -89,7 +79,6 @@ def create_slot(
     if response.status_code == 201:
         return response.json()
     elif response.status_code == 409:
-        # Slot ya existe, no es error
         return None
     else:
         print(f"  [WARN] Error al crear slot {hora_inicio}-{hora_fin}: {response.text}")
@@ -105,7 +94,6 @@ def generate_weekly_slots(
     time_slots: List[Tuple[time, time]],
     capacity: int = DEFAULT_CAPACITY
 ) -> Tuple[int, int]:
-    """Generar slots para una instalación durante N días"""
     created = 0
     skipped = 0
     
@@ -136,9 +124,7 @@ def generate_weekly_slots(
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Generar slots semanales para todas las instalaciones"
-    )
+    parser = argparse.ArgumentParser()
     parser.add_argument(
         "--days",
         type=int,
@@ -178,7 +164,6 @@ def main():
     
     args = parser.parse_args()
     
-    # Determinar fecha de inicio
     if args.start_date:
         start_date = date.fromisoformat(args.start_date)
     else:
@@ -192,7 +177,6 @@ def main():
     print(f"Horarios por dia: {len(DEFAULT_TIME_SLOTS)}")
     print("=" * 50)
     
-    # Iniciar sesión
     print("\n[INFO] Iniciando sesion...")
     try:
         token = login(args.email, args.password)
@@ -201,7 +185,6 @@ def main():
         print(f"[ERROR] {e}")
         sys.exit(1)
     
-    # Obtener instalaciones
     print("\n[INFO] Obteniendo instalaciones...")
     try:
         facilities = get_facilities(token)
@@ -210,14 +193,12 @@ def main():
         print(f"[ERROR] {e}")
         sys.exit(1)
     
-    # Filtrar por facility_id si se especifica
     if args.facility_id:
         facilities = [f for f in facilities if f["id"] == args.facility_id]
         if not facilities:
             print(f"[ERROR] No se encontro la instalacion con ID {args.facility_id}")
             sys.exit(1)
     
-    # Generar slots para cada instalación
     total_created = 0
     total_skipped = 0
     
@@ -234,7 +215,6 @@ def main():
         total_created += created
         total_skipped += skipped
     
-    # Resumen
     print("\n" + "=" * 50)
     print("RESUMEN")
     print("=" * 50)

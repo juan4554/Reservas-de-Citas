@@ -1,7 +1,3 @@
-"""
-Script avanzado para generar slots con configuración personalizada
-Permite definir horarios diferentes por instalación o día de la semana
-"""
 import sys
 import os
 import json
@@ -18,7 +14,6 @@ load_dotenv()
 
 API_URL = os.getenv("API_URL", "http://localhost:8000")
 
-# Configuración por defecto
 DEFAULT_CONFIG = {
     "time_slots": [
         {"start": "09:00", "end": "10:00"},
@@ -30,19 +25,17 @@ DEFAULT_CONFIG = {
         {"start": "20:00", "end": "21:00"},
     ],
     "capacity": 20,
-    "exclude_days": [],  # Días de la semana a excluir (0=Lunes, 6=Domingo)
-    "facility_overrides": {}  # {facility_id: {"capacity": 30, "time_slots": [...]}}
+    "exclude_days": [],
+    "facility_overrides": {}
 }
 
 
 def parse_time(time_str: str) -> time:
-    """Parse time string HH:MM to time object"""
     parts = time_str.split(":")
     return time(int(parts[0]), int(parts[1]))
 
 
 def login(email: str, password: str) -> str:
-    """Iniciar sesión y obtener token"""
     response = requests.post(
         f"{API_URL}/auth/login",
         data={
@@ -60,7 +53,6 @@ def login(email: str, password: str) -> str:
 
 
 def get_facilities(token: str) -> List[dict]:
-    """Obtener todas las instalaciones"""
     response = requests.get(
         f"{API_URL}/facilities",
         headers={"Authorization": f"Bearer {token}"}
@@ -80,7 +72,6 @@ def create_slot(
     hora_fin: time,
     capacidad: int
 ) -> dict | None:
-    """Crear un slot"""
     response = requests.post(
         f"{API_URL}/slots",
         json={
@@ -97,7 +88,7 @@ def create_slot(
     if response.status_code == 201:
         return response.json()
     elif response.status_code == 409:
-        return None  # Ya existe
+        return None
     else:
         return None
 
@@ -107,7 +98,6 @@ def get_time_slots_for_facility(
     config: dict,
     default_slots: List[Dict[str, str]]
 ) -> List[Tuple[time, time]]:
-    """Obtener horarios para una instalación específica"""
     override = config.get("facility_overrides", {}).get(facility_id, {})
     
     if "time_slots" in override:
@@ -122,7 +112,6 @@ def get_time_slots_for_facility(
 
 
 def should_skip_day(date_obj: date, config: dict) -> bool:
-    """Verificar si se debe saltar un día (ej: domingos)"""
     weekday = date_obj.weekday()  # 0=Lunes, 6=Domingo
     exclude_days = config.get("exclude_days", [])
     return weekday in exclude_days
@@ -136,7 +125,6 @@ def generate_slots(
     days: int,
     config: dict
 ) -> Tuple[int, int]:
-    """Generar slots para una instalación"""
     created = 0
     skipped = 0
     
@@ -151,7 +139,6 @@ def generate_slots(
     for day_offset in range(days):
         current_date = start_date + timedelta(days=day_offset)
         
-        # Saltar días excluidos
         if should_skip_day(current_date, config):
             continue
         
@@ -175,9 +162,7 @@ def generate_slots(
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Generar slots semanales con configuracion personalizada"
-    )
+    parser = argparse.ArgumentParser()
     parser.add_argument(
         "--config",
         type=str,
@@ -216,14 +201,12 @@ def main():
     
     args = parser.parse_args()
     
-    # Cargar configuración
     config = DEFAULT_CONFIG.copy()
     if args.config and os.path.exists(args.config):
         with open(args.config, "r", encoding="utf-8") as f:
             user_config = json.load(f)
             config.update(user_config)
     
-    # Determinar fecha de inicio
     if args.start_date:
         start_date = date.fromisoformat(args.start_date)
     else:
@@ -239,7 +222,6 @@ def main():
         print(f"Dias excluidos: {config['exclude_days']}")
     print("=" * 60)
     
-    # Iniciar sesión
     print("\n[INFO] Iniciando sesion...")
     try:
         token = login(args.email, args.password)
@@ -248,7 +230,6 @@ def main():
         print(f"[ERROR] {e}")
         sys.exit(1)
     
-    # Obtener instalaciones
     print("\n[INFO] Obteniendo instalaciones...")
     try:
         facilities = get_facilities(token)
@@ -257,14 +238,12 @@ def main():
         print(f"[ERROR] {e}")
         sys.exit(1)
     
-    # Filtrar por facility_id si se especifica
     if args.facility_id:
         facilities = [f for f in facilities if f["id"] == args.facility_id]
         if not facilities:
             print(f"[ERROR] No se encontro la instalacion con ID {args.facility_id}")
             sys.exit(1)
     
-    # Generar slots
     total_created = 0
     total_skipped = 0
     
@@ -280,7 +259,6 @@ def main():
         total_created += created
         total_skipped += skipped
     
-    # Resumen
     print("\n" + "=" * 60)
     print("RESUMEN")
     print("=" * 60)
