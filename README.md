@@ -93,7 +93,7 @@ DEBUG=True
 CORS_ORIGINS=http://localhost:3000,http://localhost:5173
 ```
 
-### Base de datos (o database)
+### Base de datos
 
 Por defecto usa SQLite, que esta bien para desarrollo. Si quieres usar PostgreSQL en produccion:
 
@@ -129,7 +129,7 @@ Hay otro script mas avanzado si necesitas configurar horarios diferentes por ins
 python scripts/generate_weekly_slots_config.py --config scripts/slots_config.example.json
 ```
 
-### Resetear password de admin (si te olvidaste)
+### Resetear password de admin (si se te olvida)
 
 Si te olvidaste la contrasena del admin:
 
@@ -206,7 +206,8 @@ ports:
 
 ### Error "database is locked"
 
-SQLite no se lleva bien con multiples procesos escribiendo a la vez. Soluciones:
+SQLite no se lleva bien con multiples procesos escribiendo a la vez. 
+Soluciones:
 - Asegurate de que solo un proceso este accediendo a la BD
 - Para produccion, mejor usa PostgreSQL (descomenta el servicio `db`)
 
@@ -297,7 +298,7 @@ Reservas-de-Citas/
 - Docker
 - Docker Compose
 
-## Licencia (o falta de ella)
+## Licencia (no tiene)
 
 Es un proyecto de TFG, asi que no hay licencia especifica. Sientete libre de hacer fork y usarlo como quieras.
 
